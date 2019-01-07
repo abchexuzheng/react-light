@@ -1,4 +1,5 @@
 let rootInstance = null;
+const TEXT_ELEMENT = "TEXT ELEMENT";
 
 // 渲染dom对象的方法
 function render (element, parentDom) {
@@ -51,7 +52,7 @@ function instantiate (element) {
     const { type, props } = element;
 
     // 创建DOM元素
-    const isTextElement = type === "TEXT ELEMENT";
+    const isTextElement = type === TEXT_ELEMENT;
     const dom = isTextElement
         ? document.createTextNode("")
         : document.createElement(type);
@@ -95,4 +96,18 @@ function updateDomProperties(dom, prevProps, nextProps) {
     Object.keys(props).filter(isAttribute).forEach(name => {
         dom[name] = props[name];
     });
+}
+
+function createElement(type, config, ...args) {
+  const props = Object.assign({}, config);
+  const hasChildren = args.length > 0;
+  const rawChildren = hasChildren ? [].concat(...args) : [];
+  props.children = rawChildren
+    .filter(c => c != null && c !== false)
+    .map(c => c instanceof Object ? c : createTextElement(c));
+  return { type, props };
+}
+
+function createTextElement(value) {
+  return createElement(TEXT_ELEMENT, { nodeValue: value });
 }
